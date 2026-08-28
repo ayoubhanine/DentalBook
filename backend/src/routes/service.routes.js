@@ -21,7 +21,7 @@ import {
 const router = express.Router();
 
 // Public / authenticated users
-router.get("/", getAllServicesController);
+router.get("/",protect, getAllServicesController);
 
 router.get("/:id", getServiceByIdController);
 

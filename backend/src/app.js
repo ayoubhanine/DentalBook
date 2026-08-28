@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js"
 import serviceRoutes from "./routes/service.routes.js";
 import scheduleRoutes from "./routes/schedule.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -21,5 +23,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth",authRoutes)
 app.use("/api/services",serviceRoutes)
 app.use("/api/schedules",scheduleRoutes)
+app.use("/api/appointments", appointmentRoutes);
 
 export default app;
