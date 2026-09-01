@@ -1,2 +1,8 @@
-app.js : configure l'application Express (middlewares, routes, etc.).
-server.js : démarre le serveur et se connecte à la base de données.
+#  DentalBook
+
+## 📐 Diagrammes UML
+
+### Diagramme de classes
+![Class Diagram](diagrammmes/ClassDiagram.png)
+
+
