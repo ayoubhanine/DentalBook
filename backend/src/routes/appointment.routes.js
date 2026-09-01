@@ -14,7 +14,8 @@ import {
   updateAppointmentSchema,
 } from "../validators/appointment.validator.js";
 import { protect } from "../middleware/auth.middleware.js";
-import validate  from "../middleware/validate.middleware.js"
+import validate  from "../middleware/validate.middleware.js";
+import { authorize } from "../middleware/authorize.middleware.js";
 
 const router = express.Router();
 
@@ -29,23 +30,27 @@ router.post(
 );
 
 // Récupérer tous les rendez-vous
-router.get("/", getAllAppointmentsController);
+router.get("/",
+   authorize("admin") ,
+   getAllAppointmentsController);
 
 // Récupérer les rendez-vous du patient connecté
-// IMPORTANT : cette route doit être avant /:id
 router.get("/my", getMyAppointmentsController);
 
-// Récupérer un rendez-vous par ID
+
 router.get("/:id", getAppointmentByIdController);
 
-// Modifier un rendez-vous
+
 router.patch(
   "/:id",
+  authorize("admin"),
   validate(updateAppointmentSchema),
   updateAppointmentController,
 );
 
-// Supprimer un rendez-vous
-router.delete("/:id", deleteAppointmentController);
+
+router.delete("/:id",
+  authorize("admin"),
+   deleteAppointmentController);
 
 export default router;
