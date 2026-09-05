@@ -27,6 +27,104 @@ const canManageAppointment = (appointment, user) => {
   );
 };
 
+// export const createAppointment = async (appointmentData) => {
+//   const {
+//     userId,
+//     serviceId,
+//     scheduleId,
+//     appointmentDate,
+//     notes,
+//   } = appointmentData;
+
+//   // Vérifier que le patient existe
+//   const user = await User.findById(userId);
+
+//   if (!user) {
+//     throw new Error("Patient not found");
+//   }
+
+//   // Vérifier que le service existe
+//   const service = await Service.findById(serviceId);
+
+//   if (!service) {
+//     throw new Error("Service not found");
+//   }
+
+//   // Vérifier que le schedule existe
+//   const schedule = await Schedule.findById(scheduleId);
+
+//   if (!schedule) {
+//     throw new Error("Schedule not found");
+//   }
+
+//   // Vérifier que le schedule est disponible
+//   if (!schedule.isAvailable) {
+//     throw new Error("This schedule is not available");
+//   }
+
+//   const date = new Date(appointmentDate);
+
+//   // Vérifier que la date est valide
+//   if (isNaN(date.getTime())) {
+//     throw new Error("Invalid appointment date");
+//   }
+
+//   // Vérifier le jour de la semaine
+//   const appointmentDay = getDayName(date);
+
+//   if (appointmentDay !== schedule.day) {
+//     throw new Error(
+//       `Appointment date must be on ${schedule.day}`
+//     );
+//   }
+
+// // Vérifier que l'heure du rendez-vous est dans le planning
+// const appointmentMinutes =
+//   date.getHours() * 60 + date.getMinutes();
+
+// const startMinutes = timeToMinutes(schedule.startTime);
+// const endMinutes = timeToMinutes(schedule.endTime);
+
+// if (
+//   appointmentMinutes < startMinutes ||
+//   appointmentMinutes >= endMinutes
+// ) {
+//   throw new Error(
+//     `Appointment time must be between ${schedule.startTime} and ${schedule.endTime}`
+//   );
+// }
+
+// // Vérifier qu'il n'existe pas déjà un rendez-vous
+// // pour ce patient à cette date
+// const existingAppointment = await Appointment.findOne({
+//   userId,
+//   appointmentDate: date,
+//   status: {
+//     $in: ["pending", "confirmed"],
+//   },
+// });
+
+
+//   if (existingAppointment) {
+//     throw new Error(
+//       "You already have an appointment at this date"
+//     );
+//   }
+
+//   // Création du rendez-vous
+//   const appointment = await Appointment.create({
+//     userId,
+//     serviceId,
+//     scheduleId,
+//     appointmentDate: date,
+//     notes,
+//     status: "pending",
+//   });
+
+//   return appointment;
+// };
+
+
 export const createAppointment = async (appointmentData) => {
   const {
     userId,
@@ -36,40 +134,57 @@ export const createAppointment = async (appointmentData) => {
     notes,
   } = appointmentData;
 
-  // Vérifier que le patient existe
+
+  // 1. Vérifier que le patient existe
+ 
+
   const user = await User.findById(userId);
 
   if (!user) {
     throw new Error("Patient not found");
   }
 
-  // Vérifier que le service existe
+
+  // 2. Vérifier que le service existe
+
+
   const service = await Service.findById(serviceId);
 
   if (!service) {
     throw new Error("Service not found");
   }
 
-  // Vérifier que le schedule existe
+ 
+  // 3. Vérifier que le schedule existe
+  
+
   const schedule = await Schedule.findById(scheduleId);
 
   if (!schedule) {
     throw new Error("Schedule not found");
   }
 
-  // Vérifier que le schedule est disponible
+
+  // 4. Vérifier que le schedule est disponible
+
+
   if (!schedule.isAvailable) {
     throw new Error("This schedule is not available");
   }
 
+
+  // 5. Vérifier la date
+
+
   const date = new Date(appointmentDate);
 
-  // Vérifier que la date est valide
   if (isNaN(date.getTime())) {
     throw new Error("Invalid appointment date");
   }
 
-  // Vérifier le jour de la semaine
+  // 6. Vérifier le jour
+
+
   const appointmentDay = getDayName(date);
 
   if (appointmentDay !== schedule.day) {
@@ -78,40 +193,125 @@ export const createAppointment = async (appointmentData) => {
     );
   }
 
-// Vérifier que l'heure du rendez-vous est dans le planning
-const appointmentMinutes =
-  date.getHours() * 60 + date.getMinutes();
 
-const startMinutes = timeToMinutes(schedule.startTime);
-const endMinutes = timeToMinutes(schedule.endTime);
-
-if (
-  appointmentMinutes < startMinutes ||
-  appointmentMinutes >= endMinutes
-) {
-  throw new Error(
-    `Appointment time must be between ${schedule.startTime} and ${schedule.endTime}`
-  );
-}
-
-// Vérifier qu'il n'existe pas déjà un rendez-vous
-// pour ce patient à cette date
-const existingAppointment = await Appointment.findOne({
-  userId,
-  appointmentDate: date,
-  status: {
-    $in: ["pending", "confirmed"],
-  },
-});
+  // 7. Calculer heure début
 
 
-  if (existingAppointment) {
+  const appointmentStartMinutes =
+    date.getHours() * 60 + date.getMinutes();
+
+  const scheduleStartMinutes =
+    timeToMinutes(schedule.startTime);
+
+  const scheduleEndMinutes =
+    timeToMinutes(schedule.endTime);
+
+
+  // 8. Calculer heure fin selon service.duration
+ 
+
+  const appointmentEndMinutes =
+    appointmentStartMinutes + service.duration;
+
+
+  // 9. Vérifier que le rendez-vous complet
+  //    reste dans les horaires du cabinet
+ 
+
+  if (
+    appointmentStartMinutes < scheduleStartMinutes ||
+    appointmentEndMinutes > scheduleEndMinutes
+  ) {
     throw new Error(
-      "You already have an appointment at this date"
+      `Appointment must be between ${schedule.startTime} and ${schedule.endTime}`
     );
   }
 
-  // Création du rendez-vous
+
+  // 10. Récupérer les appointments du même jour
+ 
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const existingAppointments = await Appointment.find({
+    appointmentDate: {
+      $gte: startOfDay,
+      $lte: endOfDay,
+    },
+
+    status: {
+      $in: ["pending", "confirmed"],
+    },
+  }).populate("serviceId");
+
+  // 11. Vérifier les conflits horaires
+ 
+
+  const hasConflict = existingAppointments.some(
+    (appointment) => {
+      const existingStartMinutes =
+        appointment.appointmentDate.getHours() * 60 +
+        appointment.appointmentDate.getMinutes();
+
+      const existingEndMinutes =
+        existingStartMinutes +
+        appointment.serviceId.duration;
+
+      // Overlap entre les deux rendez-vous
+      return (
+        appointmentStartMinutes < existingEndMinutes &&
+        appointmentEndMinutes > existingStartMinutes
+      );
+    }
+  );
+
+  if (hasConflict) {
+    throw new Error(
+      "This time slot is already booked"
+    );
+  }
+
+
+  // 12. Vérifier que le même patient
+  //     n'a pas déjà un rendez-vous qui se chevauche
+
+
+  const patientAppointments =
+    existingAppointments.filter(
+      (appointment) =>
+        appointment.userId.toString() ===
+        userId.toString()
+    );
+
+  const patientHasConflict =
+    patientAppointments.some((appointment) => {
+      const existingStartMinutes =
+        appointment.appointmentDate.getHours() * 60 +
+        appointment.appointmentDate.getMinutes();
+
+      const existingEndMinutes =
+        existingStartMinutes +
+        appointment.serviceId.duration;
+
+      return (
+        appointmentStartMinutes < existingEndMinutes &&
+        appointmentEndMinutes > existingStartMinutes
+      );
+    });
+
+  if (patientHasConflict) {
+    throw new Error(
+      "You already have an appointment during this time"
+    );
+  }
+
+
+  // 13. Créer le rendez-vous
+
   const appointment = await Appointment.create({
     userId,
     serviceId,
@@ -123,6 +323,8 @@ const existingAppointment = await Appointment.findOne({
 
   return appointment;
 };
+
+
 
 export const getAllAppointments = async () => {
   const appointments = await Appointment.find()
