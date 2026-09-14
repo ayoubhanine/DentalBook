@@ -132,46 +132,53 @@ const statusStyles = {
               </tr>
             </thead>
 
-            <tbody>
-              {appointments.map((appointment) => (
-                <tr
-                  key={`${appointment.patient}-${appointment.time}`}
-                  className="border-b border-slate-50 last:border-none"
-                >
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
-                    {appointment.patient}
-                  </td>
+        <tbody>
+  {appointments.map((appointment) => {
+    const appointmentDate = new Date(appointment.appointmentDate);
 
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {appointment.service}
-                  </td>
+    return (
+      <tr
+        key={appointment._id}
+        className="border-b border-slate-50 last:border-none"
+      >
+        <td className="px-6 py-4 text-sm font-medium text-slate-800">
+          {appointment.userId.firstName} {appointment.userId.lastName}
+        </td>
 
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {appointment.date}
-                  </td>
+        <td className="px-6 py-4 text-sm text-slate-600">
+          {appointment.serviceId.name}
+        </td>
 
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {appointment.time}
-                  </td>
+        <td className="px-6 py-4 text-sm text-slate-600">
+          {appointmentDate.toLocaleDateString()}
+        </td>
 
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        statusStyles[appointment.status]
-                      }`}
-                    >
-                      {appointment.status}
-                    </span>
-                  </td>
+        <td className="px-6 py-4 text-sm text-slate-600">
+          {appointmentDate.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </td>
 
-                  <td className="px-6 py-4">
-                    <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+        <td className="px-6 py-4">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              statusStyles[appointment.status]
+            }`}
+          >
+            {appointment.status}
+          </span>
+        </td>
+
+        <td className="px-6 py-4">
+          <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+            View
+          </button>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
           </table>
         </div>
 
@@ -179,17 +186,17 @@ const statusStyles = {
         <div className="space-y-4 p-4 md:hidden">
           {appointments.map((appointment) => (
             <div
-              key={`${appointment.patient}-${appointment.time}-mobile`}
+              key={`${appointment.userId.firstName}-${appointment.userId.lastName}-${appointment.time}-mobile`}
               className="rounded-xl border border-slate-100 p-4"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-slate-800">
-                    {appointment.patient}
+                    {appointment.userId.firstName} {appointment.userId.lastName}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    {appointment.service}
+                   {appointment.serviceId.name}
                   </p>
                 </div>
 

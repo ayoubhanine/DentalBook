@@ -44,7 +44,7 @@ const appointmentSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
 
-        state.appointments = action.payload.data || [];
+        state.appointments = action.payload.data?.appointments || [];
       })
       .addCase(getAppointments.rejected, (state, action) => {
         state.isLoading = false;
