@@ -4,40 +4,43 @@ import {
   FaCheckCircle,
   FaClipboardList,
 } from "react-icons/fa";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAppointments } from "../../features/appointments/appointmentSlice";
 
 import StatCard from "../../components/admin/StatCard";
 
 function Dashboard() {
-  const appointments = [
-    {
-      patient: "John Doe",
-      service: "Dental Cleaning",
-      date: "14 Sep 2026",
-      time: "09:00",
-      status: "Confirmed",
-    },
-    {
-      patient: "Sarah Smith",
-      service: "Teeth Whitening",
-      date: "14 Sep 2026",
-      time: "10:30",
-      status: "Pending",
-    },
-    {
-      patient: "Michael Brown",
-      service: "Dental Examination",
-      date: "14 Sep 2026",
-      time: "13:00",
-      status: "Completed",
-    },
-  ];
+    
+ const dispatch = useDispatch();
 
-  const statusStyles = {
-    Confirmed: "bg-green-50 text-green-700",
-    Pending: "bg-amber-50 text-amber-700",
-    Completed: "bg-blue-50 text-blue-700",
-    Cancelled: "bg-red-50 text-red-700",
-  };
+const { appointments, isLoading, isError, message } = useSelector(
+  (state) => state.appointments
+);
+
+useEffect(() => {
+  dispatch(getAppointments());
+}, [dispatch]);
+const totalAppointments = appointments.length;
+
+const pendingAppointments = appointments.filter(
+  (appointment) => appointment.status === "pending"
+).length;
+
+const confirmedAppointments = appointments.filter(
+  (appointment) => appointment.status === "confirmed"
+).length;
+
+const completedAppointments = appointments.filter(
+  (appointment) => appointment.status === "completed"
+).length;
+
+const statusStyles = {
+  pending: "bg-amber-50 text-amber-700",
+  confirmed: "bg-green-50 text-green-700",
+  completed: "bg-blue-50 text-blue-700",
+  cancelled: "bg-red-50 text-red-700",
+};
 
   return (
     <div className="space-y-8">
@@ -60,28 +63,28 @@ function Dashboard() {
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Appointments"
-          value="248"
+          value={totalAppointments}
           description="All appointments"
           icon={<FaCalendarCheck />}
         />
 
         <StatCard
           title="Pending Appointments"
-          value="24"
+          value={pendingAppointments}
           description="Waiting for confirmation"
           icon={<FaClock />}
         />
 
         <StatCard
           title="Confirmed"
-          value="156"
+          value={confirmedAppointments}
           description="Confirmed appointments"
           icon={<FaCheckCircle />}
         />
 
         <StatCard
           title="Completed"
-          value="68"
+          value={completedAppointments}
           description="Completed appointments"
           icon={<FaClipboardList />}
         />
@@ -104,7 +107,17 @@ function Dashboard() {
             View all
           </button>
         </div>
+                {isLoading && (
+            <div className="flex justify-center py-10">
+                <p className="text-slate-500">Loading appointments...</p>
+            </div>
+            )}
 
+            {isError && (
+            <div className="rounded-xl bg-red-50 p-4 text-red-600">
+                {message}
+            </div>
+            )}
         {/* Desktop table */}
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
