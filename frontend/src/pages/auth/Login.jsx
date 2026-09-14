@@ -45,11 +45,11 @@ function Login() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden grid md:grid-cols-2">
         
-        {/* Left - Form */}
+        
         <div className="p-8 sm:p-12">
           <div className="max-w-md mx-auto">
             
-            {/* Logo */}
+
             <Link to="/" className="inline-block mb-10">
               <span className="text-2xl font-bold text-blue-700">
                 DentalBook
@@ -134,7 +134,7 @@ function Login() {
                 )}
               </div>
 
-              {/* Submit */}
+              
               <button
                 type="submit"
                 disabled={isLoading}
@@ -144,7 +144,7 @@ function Login() {
               </button>
             </form>
 
-            {/* Register */}
+            
             <p className="mt-8 text-center text-sm text-slate-500">
               Don't have an account?{" "}
               <Link
