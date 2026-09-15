@@ -15,6 +15,8 @@ import {
   getServices,
   updateService,
 } from "../../features/services/serviceSlice";
+import AddServiceModal from "../../components/admin/AddServiceModal";
+import EditServiceModal from "../../components/admin/EditServiceModal";
 
 function Services() {
   const dispatch = useDispatch();
@@ -31,6 +33,7 @@ function Services() {
   const [search, setSearch] = useState("");
   const [selectedService, setSelectedService] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(getServices());
@@ -109,6 +112,7 @@ function Services() {
 
         <button
           type="button"
+          onClick={() => setIsAddModalOpen(true)}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
         >
           <FaPlus />
@@ -355,31 +359,20 @@ function Services() {
         </>
       )}
 
-     
-      {isEditModalOpen && selectedService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-slate-900">
-              Edit Service
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500">
-              {selectedService.name}
-            </p>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditModalOpen(false);
-                setSelectedService(null);
-              }}
-              className="mt-5 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+   {isEditModalOpen && selectedService && (
+  <EditServiceModal
+    service={selectedService}
+    onClose={() => {
+      setIsEditModalOpen(false);
+      setSelectedService(null);
+    }}
+  />
+)}
+      {isAddModalOpen && (
+  <AddServiceModal
+    onClose={() => setIsAddModalOpen(false)}
+  />
+)}
     </div>
   );
 }
