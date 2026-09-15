@@ -44,14 +44,14 @@ const statusStyles = {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
+     
       <div>
         <p className="text-sm font-medium text-blue-600">
           Dashboard
         </p>
 
         <h1 className="mt-1 text-3xl font-bold text-slate-900">
-          Clinic Overview
+          Cabinet Overview
         </h1>
 
         <p className="mt-2 text-slate-500">
@@ -59,7 +59,7 @@ const statusStyles = {
         </p>
       </div>
 
-      {/* Stats */}
+      
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Appointments"
@@ -90,7 +90,7 @@ const statusStyles = {
         />
       </div>
 
-      {/* Appointment Overview */}
+    
       <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -118,7 +118,7 @@ const statusStyles = {
                 {message}
             </div>
             )}
-        {/* Desktop table */}
+       
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
             <thead>
@@ -182,7 +182,6 @@ const statusStyles = {
           </table>
         </div>
 
-        {/* Mobile cards */}
         <div className="space-y-4 p-4 md:hidden">
           {appointments.map((appointment) => (
             <div
