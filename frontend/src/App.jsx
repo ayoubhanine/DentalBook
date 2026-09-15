@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
+import Appointments from "./pages/admin/Appointments";
 function App() {
   
   return (
@@ -11,7 +12,8 @@ function App() {
     <Route path="/login" element={<Login/>}/>
      <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
-      </Route>
+        <Route path="/admin/appointments" element={<Appointments />}/> 
+          </Route>
    </Routes>
     </>
   )
