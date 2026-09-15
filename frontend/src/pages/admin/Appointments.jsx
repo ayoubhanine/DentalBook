@@ -13,6 +13,7 @@ import {
   updateAppointment,
 } from "../../features/appointments/appointmentSlice";
 import AppointmentDetailsModal from "../../components/admin/AppointmentDetailsModal";
+import EditAppointmentModal from "../../components/admin/EditAppointmentModal";
 
 function Appointments() {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ function Appointments() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [editingAppointment, setEditingAppointment] = useState(null);
 
   useEffect(() => {
     dispatch(getAppointments());
@@ -285,6 +287,7 @@ function Appointments() {
                           </button>
 
                           <button
+                             onClick={() => setEditingAppointment(appointment)}
                             className="rounded-lg p-2 text-blue-500 hover:bg-blue-50"
                             title="Edit"
                           >
@@ -406,6 +409,7 @@ function Appointments() {
                   </button>
 
                   <button
+                     onClick={() => setEditingAppointment(appointment)}
                     className="rounded-xl p-3 text-blue-500 hover:bg-blue-50"
                     title="Edit"
                   >
@@ -432,6 +436,12 @@ function Appointments() {
   <AppointmentDetailsModal
     appointmentId={selectedAppointmentId}
     onClose={() => setSelectedAppointmentId(null)}
+  />
+)}
+{editingAppointment && (
+  <EditAppointmentModal
+    appointment={editingAppointment}
+    onClose={() => setEditingAppointment(null)}
   />
 )}
     </div>
