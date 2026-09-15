@@ -181,6 +181,12 @@ export const createAppointment = async (appointmentData) => {
   if (isNaN(date.getTime())) {
     throw new Error("Invalid appointment date");
   }
+  // Vérifier que le rendez-vous est dans le futur
+if (date <= new Date()) {
+  throw new Error(
+    "Appointment date must be in the future"
+  );
+}
 
   // 6. Vérifier le jour
 
@@ -380,6 +386,35 @@ export const getAppointmentsByUser = async (userId) => {
   return appointments;
 };
 
+// export const updateAppointment = async (
+//   appointmentId,
+//   appointmentData,
+//   user
+// ) => {
+//   const appointment = await Appointment.findById(
+//     appointmentId
+//   );
+
+//   if (!appointment) {
+//     throw new Error("Appointment not found");
+//   }
+
+//   if (!canManageAppointment(appointment, user)) {
+//     throw new Error("Access denied");
+//   }
+
+//   const updatedAppointment =
+//     await Appointment.findByIdAndUpdate(
+//       appointmentId,
+//       appointmentData,
+//       {
+//         new: true,
+//         runValidators: true,
+//       }
+//     );
+
+//   return updatedAppointment;
+// };
 export const updateAppointment = async (
   appointmentId,
   appointmentData,
@@ -395,6 +430,23 @@ export const updateAppointment = async (
 
   if (!canManageAppointment(appointment, user)) {
     throw new Error("Access denied");
+  }
+
+  // Vérifier la nouvelle date
+  if (appointmentData.appointmentDate) {
+    const newDate = new Date(
+      appointmentData.appointmentDate
+    );
+
+    if (isNaN(newDate.getTime())) {
+      throw new Error("Invalid appointment date");
+    }
+
+    if (newDate <= new Date()) {
+      throw new Error(
+        "Appointment date must be in the future"
+      );
+    }
   }
 
   const updatedAppointment =

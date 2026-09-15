@@ -14,6 +14,7 @@ import {
 } from "../../features/appointments/appointmentSlice";
 import AppointmentDetailsModal from "../../components/admin/AppointmentDetailsModal";
 import EditAppointmentModal from "../../components/admin/EditAppointmentModal";
+import { toast } from "react-toastify";
 
 function Appointments() {
   const dispatch = useDispatch();
@@ -60,26 +61,38 @@ function Appointments() {
     });
   }, [appointments, search, statusFilter]);
 
-  const handleStatusChange = (id, status) => {
-    dispatch(
-      updateAppointment({
-        id,
-        appointmentData: {
-          status,
-        },
-      })
-    );
-  };
+const handleStatusChange = async (id, status) => {
+  const result = await dispatch(
+    updateAppointment({
+      id,
+      appointmentData: {
+        status,
+      },
+    })
+  );
 
-  const handleDelete = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this appointment?"
-    );
+  if (updateAppointment.fulfilled.match(result)) {
+    toast.success("Appointment status updated successfully");
+  } else {
+    toast.error(result.payload || "Failed to update appointment");
+  }
+};
 
-    if (confirmed) {
-      dispatch(deleteAppointment(id));
-    }
-  };
+const handleDelete = async (id) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this appointment?"
+  );
+
+  if (!confirmed) return;
+
+  const result = await dispatch(deleteAppointment(id));
+
+  if (deleteAppointment.fulfilled.match(result)) {
+    toast.success("Appointment deleted successfully");
+  } else {
+    toast.error(result.payload || "Failed to delete appointment");
+  }
+};
 
   const statusStyles = {
     pending: "bg-amber-50 text-amber-700",

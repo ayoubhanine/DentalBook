@@ -6,6 +6,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { updateAppointment } from "../../features/appointments/appointmentSlice";
+import { toast } from "react-toastify";
 
 function EditAppointmentModal({ appointment, onClose }) {
   const dispatch = useDispatch();
@@ -45,27 +46,30 @@ function EditAppointmentModal({ appointment, onClose }) {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const result = await dispatch(
-      updateAppointment({
-        id: appointment._id,
-        appointmentData: {
-          appointmentDate: formData.appointmentDate,
-          status: formData.status,
-          notes: formData.notes,
-          ...(formData.scheduleId && {
-            scheduleId: formData.scheduleId,
-          }),
-        },
-      })
-    );
+  const result = await dispatch(
+    updateAppointment({
+      id: appointment._id,
+      appointmentData: {
+        appointmentDate: formData.appointmentDate,
+        status: formData.status,
+        notes: formData.notes,
+        ...(formData.scheduleId && {
+          scheduleId: formData.scheduleId,
+        }),
+      },
+    })
+  );
 
-    if (updateAppointment.fulfilled.match(result)) {
-      onClose();
-    }
-  };
+  if (updateAppointment.fulfilled.match(result)) {
+    toast.success("Appointment updated successfully");
+    onClose();
+  } else {
+    toast.error(result.payload || "Failed to update appointment");
+  }
+};
 
   if (!appointment) {
     return null;
