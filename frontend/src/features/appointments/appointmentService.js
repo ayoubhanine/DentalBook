@@ -24,11 +24,28 @@ const deleteAppointment = async (id) => {
   return response.data;
 };
 
+
+const getMyAppointments = async () => {
+  const response = await api.get("/appointments/my");
+  return response.data;
+};
+
+const createAppointment = async (appointmentData) => {
+  const response = await api.post(
+    "/appointments",
+    appointmentData
+  );
+
+  return response.data;
+};
+
 const appointmentService = {
   getAppointments,
   getAppointmentById,
   updateAppointment,
   deleteAppointment,
+  getMyAppointments,
+  createAppointment,
 };
 
 export default appointmentService;

@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import appointmentService from "./appointmentService";
 
+
+
 export const getAppointments = createAsyncThunk(
   "appointments/getAll",
   async (_, thunkAPI) => {
@@ -16,6 +18,42 @@ export const getAppointments = createAsyncThunk(
   }
 );
 
+
+
+export const getMyAppointments = createAsyncThunk(
+  "appointments/getMy",
+  async (_, thunkAPI) => {
+    try {
+      return await appointmentService.getMyAppointments();
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Failed to fetch your appointments";
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const createAppointment = createAsyncThunk(
+  "appointments/create",
+  async (appointmentData, thunkAPI) => {
+    try {
+      return await appointmentService.createAppointment(
+        appointmentData
+      );
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Failed to create appointment";
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+
+
 export const getAppointmentById = createAsyncThunk(
   "appointments/getById",
   async (id, thunkAPI) => {
@@ -30,6 +68,7 @@ export const getAppointmentById = createAsyncThunk(
     }
   }
 );
+
 
 
 export const updateAppointment = createAsyncThunk(
@@ -50,7 +89,6 @@ export const updateAppointment = createAsyncThunk(
   }
 );
 
-// Delete appointment
 export const deleteAppointment = createAsyncThunk(
   "appointments/delete",
   async (id, thunkAPI) => {
@@ -73,6 +111,7 @@ const initialState = {
   selectedAppointment: null,
 
   isLoading: false,
+  isCreating: false,
   isUpdating: false,
   isDeleting: false,
 
@@ -91,6 +130,7 @@ const appointmentSlice = createSlice({
       state.appointments = [];
       state.selectedAppointment = null;
       state.isLoading = false;
+      state.isCreating = false;
       state.isUpdating = false;
       state.isDeleting = false;
       state.isError = false;
@@ -101,12 +141,19 @@ const appointmentSlice = createSlice({
     clearSelectedAppointment: (state) => {
       state.selectedAppointment = null;
     },
+
+    resetAppointmentStatus: (state) => {
+      state.isError = false;
+      state.isSuccess = false;
+      state.message = "";
+    },
   },
 
   extraReducers: (builder) => {
     builder
 
      
+
       .addCase(getAppointments.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -126,6 +173,59 @@ const appointmentSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+
+      
+
+      .addCase(getMyAppointments.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.message = "";
+      })
+
+      .addCase(getMyAppointments.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+
+        state.appointments =
+          action.payload.data?.appointments || [];
+      })
+
+      .addCase(getMyAppointments.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+
+      
+
+      .addCase(createAppointment.pending, (state) => {
+        state.isCreating = true;
+        state.isError = false;
+        state.isSuccess = false;
+        state.message = "";
+      })
+
+      .addCase(createAppointment.fulfilled, (state, action) => {
+        state.isCreating = false;
+        state.isSuccess = true;
+        state.isError = false;
+
+        const newAppointment =
+          action.payload.data?.appointment;
+
+        if (newAppointment) {
+          state.appointments.push(newAppointment);
+        }
+      })
+
+      .addCase(createAppointment.rejected, (state, action) => {
+        state.isCreating = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.payload;
+      })
+
+     
 
       .addCase(getAppointmentById.pending, (state) => {
         state.isLoading = true;
@@ -149,7 +249,7 @@ const appointmentSlice = createSlice({
         state.message = action.payload;
       })
 
-
+     
 
       .addCase(updateAppointment.pending, (state) => {
         state.isUpdating = true;
@@ -192,6 +292,8 @@ const appointmentSlice = createSlice({
         state.message = action.payload;
       })
 
+     
+
       .addCase(deleteAppointment.pending, (state) => {
         state.isDeleting = true;
         state.isError = false;
@@ -227,6 +329,7 @@ const appointmentSlice = createSlice({
 export const {
   resetAppointments,
   clearSelectedAppointment,
+  resetAppointmentStatus,
 } = appointmentSlice.actions;
 
 export default appointmentSlice.reducer;
