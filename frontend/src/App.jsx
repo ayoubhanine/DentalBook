@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Appointments from "./pages/admin/Appointments";
@@ -15,6 +16,7 @@ function App() {
    <Routes >
     <Route path="/" element={<Login/>}/>
     <Route path="/login" element={<Login/>}/>
+    <Route path="/register" element={<Register/>}/>
      <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="/admin/appointments" element={<Appointments />}/> 
