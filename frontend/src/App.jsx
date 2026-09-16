@@ -5,6 +5,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Appointments from "./pages/admin/Appointments";
 import Services from "./pages/admin/Services";
 import Schedules from "./pages/admin/Schedules";
+import Patients from "./pages/admin/Patients";
 function App() {
   
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/admin/appointments" element={<Appointments />}/> 
         <Route path="/admin/services" element={<Services/>}/>
         <Route path="/admin/schedules" element={<Schedules/>}/>
+        <Route path="/admin/patients" element={<Patients />} />
           </Route>
    </Routes>
     </>
