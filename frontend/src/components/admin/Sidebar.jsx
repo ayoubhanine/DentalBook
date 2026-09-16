@@ -44,11 +44,11 @@ function Sidebar({ isOpen, onClose }) {
       path: "/admin/patients",
       icon: FaUsers,
     },
-    {
-      name: "Settings",
-      path: "/admin/settings",
-      icon: FaCog,
-    },
+    // {
+    //   name: "Settings",
+    //   path: "/admin/settings",
+    //   icon: FaCog,
+    // },
   ];
 
   const handleLogout = () => {
