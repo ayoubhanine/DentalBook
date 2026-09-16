@@ -4,6 +4,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Appointments from "./pages/admin/Appointments";
 import Services from "./pages/admin/Services";
+import Schedules from "./pages/admin/Schedules";
 function App() {
   
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="/admin/appointments" element={<Appointments />}/> 
         <Route path="/admin/services" element={<Services/>}/>
+        <Route path="/admin/schedules" element={<Schedules/>}/>
           </Route>
    </Routes>
     </>
