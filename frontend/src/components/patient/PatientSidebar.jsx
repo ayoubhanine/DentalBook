@@ -1,50 +1,43 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   FaCalendarAlt,
-  FaClock,
-  FaCog,
   FaSignOutAlt,
   FaStethoscope,
   FaTachometerAlt,
-  FaUsers,
+  FaUser,
   FaTimes,
+  FaPlus,
 } from "react-icons/fa";
 
 import { logout } from "../../features/auth/authSlice";
 
-function Sidebar({ isOpen, onClose }) {
+function PatientSidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const links = [
     {
       name: "Dashboard",
-      path: "/admin/dashboard",
+      path: "/patient/dashboard",
       icon: FaTachometerAlt,
     },
     {
-      name: "Appointments",
-      path: "/admin/appointments",
+      name: "My Appointments",
+      path: "/patient/appointments",
       icon: FaCalendarAlt,
     },
     {
-      name: "Services",
-      path: "/admin/services",
-      icon: FaStethoscope,
+      name: "Book Appointment",
+      path: "/patient/book",
+      icon: FaPlus,
     },
     {
-      name: "Schedules",
-      path: "/admin/schedules",
-      icon: FaClock,
+      name: "My Profile",
+      path: "/patient/profile",
+      icon: FaUser,
     },
-    {
-      name: "Patients",
-      path: "/admin/patients",
-      icon: FaUsers,
-    },
-    
   ];
 
   const handleLogout = () => {
@@ -54,7 +47,7 @@ function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile Overlay */}
+    
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/40 md:hidden"
@@ -64,9 +57,9 @@ function Sidebar({ isOpen, onClose }) {
 
       
       <aside
-       className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ${
-  isOpen ? "translate-x-0" : "-translate-x-full"
-} md:translate-x-0 md:shadow-none`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:shadow-none`}
       >
       
         <div className="flex h-20 items-center justify-between border-b border-slate-100 px-6">
@@ -80,8 +73,9 @@ function Sidebar({ isOpen, onClose }) {
             </span>
           </div>
 
-        
+         
           <button
+            type="button"
             onClick={onClose}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
             aria-label="Close menu"
@@ -90,7 +84,7 @@ function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        
+     
         <nav className="space-y-1 px-4 py-6">
           {links.map((link) => {
             const Icon = link.icon;
@@ -115,9 +109,10 @@ function Sidebar({ isOpen, onClose }) {
           })}
         </nav>
 
-     
+       
         <div className="absolute bottom-0 w-full border-t border-slate-100 p-4">
           <button
+            type="button"
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 transition hover:bg-red-50"
           >
@@ -130,4 +125,4 @@ function Sidebar({ isOpen, onClose }) {
   );
 }
 
-export default Sidebar;
+export default PatientSidebar;
