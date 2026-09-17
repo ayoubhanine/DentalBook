@@ -3,6 +3,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   getPatients,
   getPatientById,
+  getMe,
+  updateMe,
 } from "./patientService";
 
 export const fetchPatients = createAsyncThunk(
@@ -37,13 +39,48 @@ export const fetchPatientById = createAsyncThunk(
   }
 );
 
+export const fetchMe = createAsyncThunk(
+  "patients/fetchMe",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getMe();
+
+      return response.data.user;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch profile"
+      );
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  "patients/updateProfile",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await updateMe(userData);
+
+      return response.data.user;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update profile"
+      );
+    }
+  }
+);
+
 
 
 const initialState = {
-  patients: [],
-  selectedPatient: null,
-  isLoading: false,
-  error: null,
+   patients: [],
+   selectedPatient: null,
+
+   currentUser: null,
+   isLoading: false,
+   isUpdating: false,
+   error: null,
 };
 
 const patientSlice = createSlice({
@@ -88,6 +125,36 @@ const patientSlice = createSlice({
       .addCase(fetchPatientById.rejected, (state, action) => {
         state.error = action.payload;
       })
+
+      .addCase(fetchMe.pending, (state) => {
+  state.isLoading = true;
+  state.error = null;
+})
+
+.addCase(fetchMe.fulfilled, (state, action) => {
+  state.isLoading = false;
+  state.currentUser = action.payload;
+})
+
+.addCase(fetchMe.rejected, (state, action) => {
+  state.isLoading = false;
+  state.error = action.payload;
+})
+
+.addCase(updateProfile.pending, (state) => {
+  state.isUpdating = true;
+  state.error = null;
+})
+
+.addCase(updateProfile.fulfilled, (state, action) => {
+  state.isUpdating = false;
+  state.currentUser = action.payload;
+})
+
+.addCase(updateProfile.rejected, (state, action) => {
+  state.isUpdating = false;
+  state.error = action.payload;
+})
 
   },
 });
