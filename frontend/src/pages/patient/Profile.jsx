@@ -100,7 +100,7 @@ function Profile() {
 
   return (
     <div>
-      {/* Header */}
+     
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">
           My Profile
@@ -111,9 +111,8 @@ function Profile() {
         </p>
       </div>
 
-      {/* Profile Card */}
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-        {/* Profile Header */}
+      
         <div className="border-b border-slate-100 bg-linear-to-r from-blue-50 to-white p-6 sm:p-8">
           <div className="flex flex-col items-center gap-4 sm:flex-row">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
@@ -132,10 +131,10 @@ function Profile() {
           </div>
         </div>
 
-        {/* Form */}
+   
         <form onSubmit={handleSubmit} className="p-6 sm:p-8">
           <div className="grid gap-6 sm:grid-cols-2">
-            {/* First Name */}
+           
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 First Name
@@ -160,7 +159,7 @@ function Profile() {
               </div>
             </div>
 
-            {/* Last Name */}
+           
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Last Name
@@ -185,7 +184,7 @@ function Profile() {
               </div>
             </div>
 
-            {/* Email */}
+           
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Email
@@ -207,7 +206,7 @@ function Profile() {
               </p>
             </div>
 
-            {/* Phone */}
+          
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Phone
@@ -233,14 +232,14 @@ function Profile() {
             </div>
           </div>
 
-          {/* Error */}
+      
           {error && (
             <div className="mt-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600">
               {error}
             </div>
           )}
 
-          {/* Buttons */}
+          
           <div className="mt-8 flex flex-col justify-end gap-3 border-t border-slate-100 pt-6 sm:flex-row">
             {!isEditing ? (
               <button
