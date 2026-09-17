@@ -43,3 +43,36 @@ export const deletePatient = async (patientId) => {
 
   return patient;
 };
+
+export const getCurrentUser = async (userId) => {
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
+
+export const updateCurrentUser = async (userId, userData) => {
+  const { firstName, lastName, phone } = userData;
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      firstName,
+      lastName,
+      phone,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).select("-password");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
