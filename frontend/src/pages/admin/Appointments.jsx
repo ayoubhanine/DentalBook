@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaCalendarAlt,
@@ -33,66 +33,94 @@ function Appointments() {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [editingAppointment, setEditingAppointment] = useState(null);
 
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const appointmentsPerPage = 4;
+
   useEffect(() => {
     dispatch(getAppointments());
   }, [dispatch]);
 
-  const filteredAppointments = useMemo(() => {
-    return appointments.filter((appointment) => {
-      const patientName =
-        `${appointment.userId?.firstName || ""} ${
-          appointment.userId?.lastName || ""
-        }`.toLowerCase();
 
-      const serviceName =
-        appointment.serviceId?.name?.toLowerCase() || "";
+  const filteredAppointments = appointments.filter((appointment) => {
+    const patientName =
+      `${appointment.userId?.firstName || ""} ${
+        appointment.userId?.lastName || ""
+      }`.toLowerCase();
 
-      const searchValue = search.toLowerCase();
+    const serviceName =
+      appointment.serviceId?.name?.toLowerCase() || "";
 
-      const matchesSearch =
-        patientName.includes(searchValue) ||
-        serviceName.includes(searchValue);
+    const searchValue = search.toLowerCase();
 
-      const matchesStatus =
-        statusFilter === "all" ||
-        appointment.status === statusFilter;
+    const matchesSearch =
+      patientName.includes(searchValue) ||
+      serviceName.includes(searchValue);
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [appointments, search, statusFilter]);
+    const matchesStatus =
+      statusFilter === "all" ||
+      appointment.status === statusFilter;
 
-const handleStatusChange = async (id, status) => {
-  const result = await dispatch(
-    updateAppointment({
-      id,
-      appointmentData: {
-        status,
-      },
-    })
+    return matchesSearch && matchesStatus;
+  });
+
+ 
+  const totalPages = Math.ceil(
+    filteredAppointments.length / appointmentsPerPage
   );
 
-  if (updateAppointment.fulfilled.match(result)) {
-    toast.success("Appointment status updated successfully");
-  } else {
-    toast.error(result.payload || "Failed to update appointment");
-  }
-};
+  const startIndex =
+    (currentPage - 1) * appointmentsPerPage;
 
-const handleDelete = async (id) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this appointment?"
+  const currentAppointments = filteredAppointments.slice(
+    startIndex,
+    startIndex + appointmentsPerPage
   );
 
-  if (!confirmed) return;
+  const handleStatusChange = async (id, status) => {
+    const result = await dispatch(
+      updateAppointment({
+        id,
+        appointmentData: {
+          status,
+        },
+      })
+    );
 
-  const result = await dispatch(deleteAppointment(id));
+    if (updateAppointment.fulfilled.match(result)) {
+      toast.success("Appointment status updated successfully");
+    } else {
+      toast.error(
+        result.payload || "Failed to update appointment"
+      );
+    }
+  };
 
-  if (deleteAppointment.fulfilled.match(result)) {
-    toast.success("Appointment deleted successfully");
-  } else {
-    toast.error(result.payload || "Failed to delete appointment");
-  }
-};
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this appointment?"
+    );
+
+    if (!confirmed) return;
+
+    const result = await dispatch(deleteAppointment(id));
+
+    if (deleteAppointment.fulfilled.match(result)) {
+      toast.success("Appointment deleted successfully");
+
+      // If current page becomes empty after delete
+      if (
+        currentAppointments.length === 1 &&
+        currentPage > 1
+      ) {
+        setCurrentPage((prev) => prev - 1);
+      }
+    } else {
+      toast.error(
+        result.payload || "Failed to delete appointment"
+      );
+    }
+  };
 
   const statusStyles = {
     pending: "bg-amber-50 text-amber-700",
@@ -103,48 +131,54 @@ const handleDelete = async (id) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+   
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-800">
             Appointments
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            Manage all patient appointments
+            Manage and monitor patient appointments.
           </p>
         </div>
 
         <div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-blue-600">
           <FaCalendarAlt />
-
-          <span className="text-sm font-semibold">
-            {appointments.length} appointments
+          <span className="text-sm font-medium">
+            {filteredAppointments.length} appointment
+            {filteredAppointments.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+   
+      <div className="rounded-2xl bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row">
-          {/* Search */}
+         
           <div className="relative flex-1">
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
 
             <input
               type="text"
-              placeholder="Search patient or service..."
+              placeholder="Search by patient or service..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full rounded-xl border border-slate-200 py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
-          {/* Status */}
+    
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-500"
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="all">All statuses</option>
             <option value="pending">Pending</option>
@@ -155,105 +189,113 @@ const handleDelete = async (id) => {
         </div>
       </div>
 
-      {/* Error */}
+    
       {isError && (
         <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
           {message}
         </div>
       )}
 
-      {/* Loading */}
-      {isLoading && (
-        <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
+     
+      {isLoading ? (
+        <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
           <p className="text-sm text-slate-500">
             Loading appointments...
           </p>
         </div>
-      )}
+      ) : filteredAppointments.length === 0 ? (
+       
+        <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
+          <FaCalendarAlt className="mx-auto mb-4 text-4xl text-slate-300" />
 
-     
-      {!isLoading && filteredAppointments.length === 0 && (
-        <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-          <p className="text-sm font-medium text-slate-700">
+          <h3 className="text-lg font-semibold text-slate-700">
             No appointments found
-          </p>
+          </h3>
 
           <p className="mt-1 text-sm text-slate-500">
             Try changing your search or filter.
           </p>
         </div>
-      )}
+      ) : (
+        <>
+        
+          <div className="hidden overflow-hidden rounded-2xl bg-white shadow-sm md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-slate-100 bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Patient
+                    </th>
 
-      {/* Desktop table */}
-      {!isLoading && filteredAppointments.length > 0 && (
-        <div className="hidden overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm lg:block">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-slate-100 bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Patient
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Service
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Service
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Date
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Date
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Status
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Time
-                  </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-                {filteredAppointments.map((appointment) => {
-                  const date = new Date(
-                    appointment.appointmentDate
-                  );
-
-                  return (
+                <tbody className="divide-y divide-slate-100">
+                  {currentAppointments.map((appointment) => (
                     <tr
                       key={appointment._id}
                       className="transition hover:bg-slate-50"
                     >
+                  
                       <td className="px-6 py-4">
-                        <p className="font-medium text-slate-900">
-                          {appointment.userId?.firstName}{" "}
-                          {appointment.userId?.lastName}
+                        <div>
+                          <p className="font-medium text-slate-800">
+                            {appointment.userId?.firstName}{" "}
+                            {appointment.userId?.lastName}
+                          </p>
+
+                          <p className="text-xs text-slate-500">
+                            {appointment.userId?.email}
+                          </p>
+                        </div>
+                      </td>
+
+                  
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-medium text-slate-700">
+                          {appointment.serviceId?.name}
                         </p>
 
                         <p className="text-xs text-slate-500">
-                          {appointment.userId?.email}
+                          {appointment.serviceId?.duration} min
                         </p>
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-slate-700">
-                        {appointment.serviceId?.name}
+                     
+                      <td className="px-6 py-4">
+                        <p className="text-sm text-slate-700">
+                          {new Date(
+                            appointment.appointmentDate
+                          ).toLocaleDateString()}
+                        </p>
+
+                        <p className="text-xs text-slate-500">
+                          {new Date(
+                            appointment.appointmentDate
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-slate-700">
-                        {date.toLocaleDateString()}
-                      </td>
-
-                      <td className="px-6 py-4 text-sm text-slate-700">
-                        {date.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-
+               
                       <td className="px-6 py-4">
                         <select
                           value={appointment.status}
@@ -265,7 +307,9 @@ const handleDelete = async (id) => {
                             )
                           }
                           className={`rounded-full border-0 px-3 py-1.5 text-xs font-semibold outline-none ${
-                            statusStyles[appointment.status]
+                            statusStyles[
+                              appointment.status
+                            ]
                           }`}
                         >
                           <option value="pending">
@@ -286,33 +330,44 @@ const handleDelete = async (id) => {
                         </select>
                       </td>
 
+                     
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
                           <button
+                            type="button"
                             onClick={() =>
-                                    setSelectedAppointmentId(appointment._id)
-                                                                }
-
-                            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                              setSelectedAppointmentId(
+                                appointment._id
+                              )
+                            }
+                            className="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
                             title="View"
                           >
                             <FaEye />
                           </button>
 
                           <button
-                             onClick={() => setEditingAppointment(appointment)}
-                            className="rounded-lg p-2 text-blue-500 hover:bg-blue-50"
+                            type="button"
+                            onClick={() =>
+                              setEditingAppointment(
+                                appointment
+                              )
+                            }
+                            className="rounded-lg p-2 text-amber-600 transition hover:bg-amber-50"
                             title="Edit"
                           >
                             <FaEdit />
                           </button>
 
                           <button
-                            onClick={() =>
-                              handleDelete(appointment._id)
-                            }
+                            type="button"
                             disabled={isDeleting}
-                            className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-50"
+                            onClick={() =>
+                              handleDelete(
+                                appointment._id
+                              )
+                            }
+                            className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                             title="Delete"
                           >
                             <FaTrash />
@@ -320,77 +375,69 @@ const handleDelete = async (id) => {
                         </div>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Mobile / Tablet cards */}
-      {!isLoading && filteredAppointments.length > 0 && (
-        <div className="grid gap-4 lg:hidden">
-          {filteredAppointments.map((appointment) => {
-            const date = new Date(
-              appointment.appointmentDate
-            );
-
-            return (
+         
+          <div className="space-y-4 md:hidden">
+            {currentAppointments.map((appointment) => (
               <div
                 key={appointment._id}
-                className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+                className="rounded-2xl bg-white p-5 shadow-sm"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">
-                      {appointment.userId?.firstName}{" "}
-                      {appointment.userId?.lastName}
-                    </h3>
+             
+                <div className="mb-4">
+                  <p className="font-semibold text-slate-800">
+                    {appointment.userId?.firstName}{" "}
+                    {appointment.userId?.lastName}
+                  </p>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                      {appointment.serviceId?.name}
-                    </p>
-                  </div>
-
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      statusStyles[appointment.status]
-                    }`}
-                  >
-                    {appointment.status}
-                  </span>
+                  <p className="text-xs text-slate-500">
+                    {appointment.userId?.email}
+                  </p>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Date
-                    </p>
+             
+                <div className="mb-3">
+                  <p className="text-xs font-medium uppercase text-slate-400">
+                    Service
+                  </p>
 
-                    <p className="mt-1 text-sm font-medium text-slate-700">
-                      {date.toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">
-                      Time
-                    </p>
-
-                    <p className="mt-1 text-sm font-medium text-slate-700">
-                      {date.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
+                  <p className="mt-1 text-sm font-medium text-slate-700">
+                    {appointment.serviceId?.name}
+                  </p>
                 </div>
 
-                <div className="mt-4">
-                  <label className="mb-2 block text-xs font-medium text-slate-500">
-                    Change status
-                  </label>
+                
+                <div className="mb-3">
+                  <p className="text-xs font-medium uppercase text-slate-400">
+                    Date
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-700">
+                    {new Date(
+                      appointment.appointmentDate
+                    ).toLocaleDateString()}
+                  </p>
+
+                  <p className="text-xs text-slate-500">
+                    {new Date(
+                      appointment.appointmentDate
+                    ).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+
+                
+                <div className="mb-4">
+                  <p className="mb-2 text-xs font-medium uppercase text-slate-400">
+                    Status
+                  </p>
 
                   <select
                     value={appointment.status}
@@ -401,65 +448,143 @@ const handleDelete = async (id) => {
                         e.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                    className={`rounded-full border-0 px-3 py-1.5 text-xs font-semibold outline-none ${
+                      statusStyles[appointment.status]
+                    }`}
                   >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="pending">
+                      Pending
+                    </option>
+
+                    <option value="confirmed">
+                      Confirmed
+                    </option>
+
+                    <option value="completed">
+                      Completed
+                    </option>
+
+                    <option value="cancelled">
+                      Cancelled
+                    </option>
                   </select>
                 </div>
 
-                <div className="mt-4 flex justify-end gap-2">
+               
+                <div className="flex gap-2 border-t border-slate-100 pt-4">
                   <button
-                  onClick={() =>
-                            setSelectedAppointmentId(appointment._id)
-                                                }
-                    className="rounded-xl p-3 text-slate-500 hover:bg-slate-100"
-                    title="View"
+                    type="button"
+                    onClick={() =>
+                      setSelectedAppointmentId(
+                        appointment._id
+                      )
+                    }
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
                   >
                     <FaEye />
+                    View
                   </button>
 
                   <button
-                     onClick={() => setEditingAppointment(appointment)}
-                    className="rounded-xl p-3 text-blue-500 hover:bg-blue-50"
-                    title="Edit"
+                    type="button"
+                    onClick={() =>
+                      setEditingAppointment(appointment)
+                    }
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-600 transition hover:bg-amber-100"
                   >
                     <FaEdit />
+                    Edit
                   </button>
 
                   <button
+                    type="button"
+                    disabled={isDeleting}
                     onClick={() =>
                       handleDelete(appointment._id)
                     }
-                    disabled={isDeleting}
-                    className="rounded-xl p-3 text-red-500 hover:bg-red-50 disabled:opacity-50"
-                    title="Delete"
+                    className="flex items-center justify-center rounded-lg bg-red-50 px-3 py-2 text-red-600 transition hover:bg-red-100 disabled:opacity-50"
                   >
                     <FaTrash />
                   </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+
+        
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-sm sm:flex-row">
+              <p className="text-sm text-slate-500">
+                Page {currentPage} of {totalPages}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() =>
+                    setCurrentPage((prev) => prev - 1)
+                  }
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Previous
+                </button>
+
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1
+                ).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`h-9 w-9 rounded-lg text-sm font-medium transition ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((prev) => prev + 1)
+                  }
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
+
+   
       {selectedAppointmentId && (
-  <AppointmentDetailsModal
-    appointmentId={selectedAppointmentId}
-    onClose={() => setSelectedAppointmentId(null)}
-  />
-)}
-{editingAppointment && (
-  <EditAppointmentModal
-    appointment={editingAppointment}
-    onClose={() => setEditingAppointment(null)}
-  />
-)}
+        <AppointmentDetailsModal
+          appointmentId={selectedAppointmentId}
+          onClose={() =>
+            setSelectedAppointmentId(null)
+          }
+        />
+      )}
+
+      
+      {editingAppointment && (
+        <EditAppointmentModal
+          appointment={editingAppointment}
+          onClose={() =>
+            setEditingAppointment(null)
+          }
+        />
+      )}
     </div>
   );
-  
 }
 
 export default Appointments;

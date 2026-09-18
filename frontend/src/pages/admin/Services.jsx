@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaEdit,
@@ -35,6 +35,10 @@ function Services() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const servicesPerPage = 4;
+
   useEffect(() => {
     dispatch(getServices());
   }, [dispatch]);
@@ -45,16 +49,28 @@ function Services() {
     }
   }, [isError, message]);
 
-  const filteredServices = useMemo(() => {
+
+  const filteredServices = services.filter((service) => {
     const searchValue = search.toLowerCase();
 
-    return services.filter((service) => {
-      return (
-        service.name?.toLowerCase().includes(searchValue) ||
-        service.description?.toLowerCase().includes(searchValue)
-      );
-    });
-  }, [services, search]);
+    return (
+      service.name?.toLowerCase().includes(searchValue) ||
+      service.description?.toLowerCase().includes(searchValue)
+    );
+  });
+
+ 
+  const totalPages = Math.ceil(
+    filteredServices.length / servicesPerPage
+  );
+
+  const startIndex =
+    (currentPage - 1) * servicesPerPage;
+
+  const currentServices = filteredServices.slice(
+    startIndex,
+    startIndex + servicesPerPage
+  );
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -67,8 +83,18 @@ function Services() {
 
     if (deleteService.fulfilled.match(result)) {
       toast.success("Service deleted successfully");
+
+      // If deleted last item of current page
+      if (
+        currentServices.length === 1 &&
+        currentPage > 1
+      ) {
+        setCurrentPage((prev) => prev - 1);
+      }
     } else {
-      toast.error(result.payload || "Failed to delete service");
+      toast.error(
+        result.payload || "Failed to delete service"
+      );
     }
   };
 
@@ -84,10 +110,16 @@ function Services() {
 
     if (updateService.fulfilled.match(result)) {
       toast.success(
-        `Service ${!service.isActive ? "activated" : "deactivated"} successfully`
+        `Service ${
+          !service.isActive
+            ? "activated"
+            : "deactivated"
+        } successfully`
       );
     } else {
-      toast.error(result.payload || "Failed to update service");
+      toast.error(
+        result.payload || "Failed to update service"
+      );
     }
   };
 
@@ -98,7 +130,7 @@ function Services() {
 
   return (
     <div className="space-y-6">
-    
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
@@ -120,7 +152,7 @@ function Services() {
         </button>
       </div>
 
-   
+      {/* Search */}
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="relative max-w-md">
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -129,13 +161,16 @@ function Services() {
             type="text"
             placeholder="Search services..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full rounded-lg border border-slate-200 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
       </div>
 
-      
+      {/* Loading */}
       {isLoading ? (
         <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
           <p className="text-sm text-slate-500">
@@ -143,6 +178,7 @@ function Services() {
           </p>
         </div>
       ) : filteredServices.length === 0 ? (
+        /* Empty */
         <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
           <p className="text-sm text-slate-500">
             No services found.
@@ -150,7 +186,7 @@ function Services() {
         </div>
       ) : (
         <>
-         
+          {/* Desktop Table */}
           <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:block">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -179,11 +215,12 @@ function Services() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                  {filteredServices.map((service) => (
+                  {currentServices.map((service) => (
                     <tr
                       key={service._id}
                       className="transition hover:bg-slate-50"
                     >
+                      {/* Service */}
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-slate-900">
@@ -196,14 +233,17 @@ function Services() {
                         </div>
                       </td>
 
+                      {/* Duration */}
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {service.duration} min
                       </td>
 
+                      {/* Price */}
                       <td className="px-6 py-4 text-sm font-medium text-slate-900">
                         {service.price} MAD
                       </td>
 
+                      {/* Status */}
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
@@ -218,6 +258,7 @@ function Services() {
                         </span>
                       </td>
 
+                      {/* Actions */}
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
                           <button
@@ -242,7 +283,9 @@ function Services() {
 
                           <button
                             type="button"
-                            onClick={() => handleEdit(service)}
+                            onClick={() =>
+                              handleEdit(service)
+                            }
                             className="rounded-lg p-2 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600"
                             title="Edit"
                           >
@@ -269,9 +312,9 @@ function Services() {
             </div>
           </div>
 
-        
+          {/* Mobile Cards */}
           <div className="grid gap-4 lg:hidden">
-            {filteredServices.map((service) => (
+            {currentServices.map((service) => (
               <div
                 key={service._id}
                 className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
@@ -325,7 +368,9 @@ function Services() {
                 <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
                   <button
                     type="button"
-                    onClick={() => handleToggleStatus(service)}
+                    onClick={() =>
+                      handleToggleStatus(service)
+                    }
                     disabled={isUpdating}
                     className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
                   >
@@ -356,23 +401,77 @@ function Services() {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row">
+              <p className="text-sm text-slate-500">
+                Page {currentPage} of {totalPages}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() =>
+                    setCurrentPage((prev) => prev - 1)
+                  }
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Previous
+                </button>
+
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1
+                ).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`h-9 w-9 rounded-lg text-sm font-medium transition ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((prev) => prev + 1)
+                  }
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 
-   {isEditModalOpen && selectedService && (
-  <EditServiceModal
-    service={selectedService}
-    onClose={() => {
-      setIsEditModalOpen(false);
-      setSelectedService(null);
-    }}
-  />
-)}
+      {/* Edit Modal */}
+      {isEditModalOpen && selectedService && (
+        <EditServiceModal
+          service={selectedService}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedService(null);
+          }}
+        />
+      )}
+
+      {/* Add Modal */}
       {isAddModalOpen && (
-  <AddServiceModal
-    onClose={() => setIsAddModalOpen(false)}
-  />
-)}
+        <AddServiceModal
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

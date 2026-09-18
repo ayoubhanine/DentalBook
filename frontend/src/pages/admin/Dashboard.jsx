@@ -4,7 +4,7 @@ import {
   FaCheckCircle,
   FaClipboardList,
 } from "react-icons/fa";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getAppointments } from "../../features/appointments/appointmentSlice";
@@ -19,6 +19,18 @@ function Dashboard() {
     isError,
     message,
   } = useSelector((state) => state.appointments);
+  const [currentPage, setCurrentPage] = useState(1);
+const appointmentsPerPage = 4;
+const totalPages=Math.ceil(
+  appointments.length/appointmentsPerPage);
+  const startIndex =
+  (currentPage - 1) * appointmentsPerPage;
+
+const currentAppointments = appointments.slice(
+  startIndex,
+  startIndex + appointmentsPerPage
+);
+
 
   useEffect(() => {
     dispatch(getAppointments());
@@ -141,7 +153,7 @@ function Dashboard() {
 
         {!isLoading &&
           !isError &&
-          appointments.length > 0 && (
+          currentAppointments.length > 0 && (
             <>
               <div className="hidden overflow-x-auto md:block">
                 <table className="w-full min-w-175">
@@ -170,7 +182,7 @@ function Dashboard() {
                   </thead>
 
                   <tbody>
-                    {appointments.map((appointment) => {
+                    {currentAppointments.map((appointment) => {
                       const appointmentDate = new Date(
                         appointment.appointmentDate
                       );
@@ -222,7 +234,7 @@ function Dashboard() {
 
             
               <div className="space-y-3 p-4 md:hidden">
-                {appointments.map((appointment) => {
+                {currentAppointments.map((appointment) => {
                   const appointmentDate = new Date(
                     appointment.appointmentDate
                   );
@@ -275,6 +287,59 @@ function Dashboard() {
             </>
           )}
       </div>
+             {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-sm sm:flex-row">
+                <p className="text-sm text-slate-500">
+                  Page {currentPage} of {totalPages}
+                </p>
+
+                <div className="flex items-center gap-2">
+                  {/* Previous */}
+                  <button
+                    type="button"
+                    disabled={currentPage === 1}
+                    onClick={() =>
+                      setCurrentPage((prev) => prev - 1)
+                    }
+                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+
+                  {/* Pages */}
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => index + 1
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-9 w-9 rounded-lg text-sm font-medium transition ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white"
+                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+             
+                  <button
+                    type="button"
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((prev) => prev + 1)
+                    }
+                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
     </div>
   );
 }
