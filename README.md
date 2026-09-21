@@ -348,7 +348,9 @@ The project follows a client-server architecture.
 
 Redux Toolkit is used in the frontend to manage global application state.
 
-📁 Project Structure
+# 📁 Project Structure
+
+```text
 
 DentalBook/
 │
