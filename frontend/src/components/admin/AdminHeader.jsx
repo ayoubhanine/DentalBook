@@ -29,16 +29,16 @@ function AdminHeader({ onMenuClick }) {
           </div>
         </div>
 
-        {/* Right */}
+       
         <div className="flex items-center gap-3 sm:gap-5">
-          <button
+          {/* <button
             className="relative rounded-xl p-2.5 text-slate-500 hover:bg-slate-100"
             aria-label="Notifications"
           >
             <FaBell />
 
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
-          </button>
+          </button> */}
 
           <div className="hidden h-8 w-px bg-slate-200 sm:block" />
 

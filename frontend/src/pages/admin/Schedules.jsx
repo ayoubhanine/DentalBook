@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaEdit,
@@ -42,9 +42,7 @@ function Schedules() {
 
   const [search, setSearch] = useState("");
   const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [isModalOpen, setIsModalOpen] =useState(false);
-
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(getSchedules());
@@ -56,15 +54,14 @@ function Schedules() {
     }
   }, [isError, message]);
 
-  const filteredSchedules = useMemo(() => {
-    const value = search.toLowerCase();
-
-    return [...schedules]
-      .sort((a, b) => dayOrder[a.day] - dayOrder[b.day])
-      .filter((schedule) =>
-        schedule.day?.toLowerCase().includes(value)
-      );
-  }, [schedules, search]);
+  
+  const filteredSchedules = [...schedules]
+    .sort((a, b) => dayOrder[a.day] - dayOrder[b.day])
+    .filter((schedule) =>
+      schedule.day
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -115,43 +112,41 @@ function Schedules() {
   };
 
   const handleSubmit = async (data) => {
-  let result;
+    let result;
 
-  if (selectedSchedule) {
-    result = await dispatch(
-      updateSchedule({
-        id: selectedSchedule._id,
-        scheduleData: data,
-      })
-    );
-  } else {
-    result = await dispatch(
-      createSchedule(data)
-    );
-  }
+    if (selectedSchedule) {
+      result = await dispatch(
+        updateSchedule({
+          id: selectedSchedule._id,
+          scheduleData: data,
+        })
+      );
+    } else {
+      result = await dispatch(createSchedule(data));
+    }
 
-  if (
-    createSchedule.fulfilled.match(result) ||
-    updateSchedule.fulfilled.match(result)
-  ) {
-    toast.success(
-      selectedSchedule
-        ? "Schedule updated"
-        : "Schedule created"
-    );
+    if (
+      createSchedule.fulfilled.match(result) ||
+      updateSchedule.fulfilled.match(result)
+    ) {
+      toast.success(
+        selectedSchedule
+          ? "Schedule updated"
+          : "Schedule created"
+      );
 
-    setIsModalOpen(false);
-    setSelectedSchedule(null);
-  } else {
-    toast.error(
-      result.payload || "Operation failed"
-    );
-  }
-};
+      setIsModalOpen(false);
+      setSelectedSchedule(null);
+    } else {
+      toast.error(
+        result.payload || "Operation failed"
+      );
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+     
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
@@ -164,9 +159,10 @@ function Schedules() {
         </div>
 
         <button
-         onClick={() => {
-    setSelectedSchedule(null);
-    setIsModalOpen(true);}}
+          onClick={() => {
+            setSelectedSchedule(null);
+            setIsModalOpen(true);
+          }}
           type="button"
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
         >
@@ -175,7 +171,6 @@ function Schedules() {
         </button>
       </div>
 
-    
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="relative max-w-md">
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -190,7 +185,7 @@ function Schedules() {
         </div>
       </div>
 
-      
+     
       {isLoading ? (
         <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
           <p className="text-sm text-slate-500">
@@ -205,7 +200,7 @@ function Schedules() {
         </div>
       ) : (
         <>
-       
+         
           <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:block">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -267,6 +262,7 @@ function Schedules() {
 
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
+                         
                           <button
                             type="button"
                             onClick={() =>
@@ -287,6 +283,7 @@ function Schedules() {
                             )}
                           </button>
 
+                         
                           <button
                             type="button"
                             onClick={() =>
@@ -298,6 +295,7 @@ function Schedules() {
                             <FaEdit />
                           </button>
 
+                         
                           <button
                             type="button"
                             onClick={() =>
@@ -318,7 +316,7 @@ function Schedules() {
             </div>
           </div>
 
-          {/* Mobile / Tablet */}
+         
           <div className="grid gap-4 lg:hidden">
             {filteredSchedules.map((schedule) => (
               <div
@@ -351,6 +349,7 @@ function Schedules() {
                 </div>
 
                 <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
+           
                   <button
                     type="button"
                     onClick={() =>
@@ -364,6 +363,7 @@ function Schedules() {
                       : "Make Available"}
                   </button>
 
+                
                   <button
                     type="button"
                     onClick={() => handleEdit(schedule)}
@@ -372,6 +372,7 @@ function Schedules() {
                     <FaEdit />
                   </button>
 
+                 
                   <button
                     type="button"
                     onClick={() =>
@@ -389,16 +390,17 @@ function Schedules() {
         </>
       )}
 
+     
       <ScheduleModal
-  isOpen={isModalOpen}
-  onClose={() => {
-    setIsModalOpen(false);
-    setSelectedSchedule(null);
-  }}
-  onSubmit={handleSubmit}
-  schedule={selectedSchedule}
-  isLoading={isUpdating}
-/>
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedSchedule(null);
+        }}
+        onSubmit={handleSubmit}
+        schedule={selectedSchedule}
+        isLoading={isUpdating}
+      />
     </div>
   );
 }
