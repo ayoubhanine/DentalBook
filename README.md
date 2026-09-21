@@ -1,5 +1,16 @@
 🦷 DentalBook
 
+
+## 📐 Diagrammes UML
+
+### Diagramme de classes
+
+![Class Diagram](diagrammes/ClassDiagram.png)
+
+### Diagramme de cas d'utilisation
+
+![Diagramme de cas d'utilisation](diagrammes/UseCaseDiagram.png)
+
 DentalBook is a full-stack web application for managing a dental clinic and its appointments.
 
 The platform provides two dedicated experiences:
