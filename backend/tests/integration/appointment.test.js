@@ -80,9 +80,12 @@ const mockAppointment = {
   userId,
   serviceId,
   scheduleId,
+  // appointmentDate: new Date(
+  //   "2026-09-14T09:00:00.000Z"
+  // ),
   appointmentDate: new Date(
-    "2026-09-14T09:00:00.000Z"
-  ),
+  "2026-09-28T09:00:00.000Z"
+),
   status: "pending",
   notes: "Regular appointment",
 };
@@ -226,7 +229,8 @@ describe("Appointment Integration Tests", () => {
           serviceId,
           scheduleId,
           appointmentDate:
-            "2026-09-14T09:00:00.000Z",
+            // "2026-09-14T09:00:00.000Z",
+             "2026-09-28T09:00:00.000Z",
           notes: "Regular appointment",
         });
 
@@ -258,7 +262,8 @@ describe("Appointment Integration Tests", () => {
           serviceId,
           scheduleId,
           appointmentDate:
-            "2026-09-14T09:00:00.000Z",
+            // "2026-09-14T09:00:00.000Z",
+             "2026-09-28T09:00:00.000Z",
         });
 
       expect(response.statusCode).toBe(401);
@@ -277,7 +282,8 @@ describe("Appointment Integration Tests", () => {
           serviceId: "invalid-id",
           scheduleId,
           appointmentDate:
-            "2026-09-14T09:00:00.000Z",
+            // "2026-09-14T09:00:00.000Z",
+             "2026-09-28T09:00:00.000Z",
         });
 
       expect(response.statusCode).toBe(400);
@@ -296,7 +302,8 @@ describe("Appointment Integration Tests", () => {
           serviceId,
           scheduleId: "invalid-id",
           appointmentDate:
-            "2026-09-14T09:00:00.000Z",
+            // "2026-09-14T09:00:00.000Z",
+             "2026-09-28T09:00:00.000Z",
         });
 
       expect(response.statusCode).toBe(400);
@@ -326,7 +333,8 @@ describe("Appointment Integration Tests", () => {
         ...mockAppointment,
 
         appointmentDate: new Date(
-          "2026-09-14T09:15:00.000Z"
+          // "2026-09-14T09:15:00.000Z"
+           "2026-09-28T09:15:00.000Z"
         ),
 
         serviceId: mockService,
@@ -350,7 +358,8 @@ describe("Appointment Integration Tests", () => {
           serviceId,
           scheduleId,
           appointmentDate:
-            "2026-09-14T09:00:00.000Z",
+            // "2026-09-14T09:00:00.000Z",
+             "2026-09-28T09:00:00.000Z",
         });
 
       expect(response.statusCode).toBe(400);

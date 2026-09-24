@@ -63,7 +63,7 @@ describe("Appointment Service", () => {
       userId: "user123",
       serviceId: "service123",
       scheduleId: "schedule123",
-      appointmentDate: "2026-09-14T10:00:00",
+      appointmentDate: "2026-09-28T10:00:00",
       notes: "Regular appointment",
     };
 
@@ -199,7 +199,8 @@ describe("Appointment Service", () => {
       await expect(
         createAppointment({
           ...appointmentData,
-          appointmentDate: "2026-09-15T10:00:00",
+          // appointmentDate: "2026-09-15T10:00:00",
+          appointmentDate: "2026-09-29T10:00:00",
         })
       ).rejects.toThrow("Appointment date must be on Monday");
 
@@ -214,7 +215,8 @@ describe("Appointment Service", () => {
       await expect(
         createAppointment({
           ...appointmentData,
-          appointmentDate: "2026-09-14T17:30:00",
+          // appointmentDate: "2026-09-14T17:30:00",
+          appointmentDate: "2026-09-28T17:30:00",
         })
       ).rejects.toThrow(
         "Appointment must be between 09:00 and 18:00"
@@ -229,7 +231,8 @@ describe("Appointment Service", () => {
       Schedule.findById.mockResolvedValue(schedule);
 
       const existingAppointment = {
-        appointmentDate: new Date("2026-09-14T10:15:00"),
+        // appointmentDate: new Date("2026-09-14T10:15:00"),
+        appointmentDate: new Date("2026-09-28T10:15:00"),
         userId: "other-user",
         serviceId: {
           duration: 45,
@@ -257,7 +260,8 @@ describe("Appointment Service", () => {
       Schedule.findById.mockResolvedValue(schedule);
 
       const existingAppointment = {
-        appointmentDate: new Date("2026-09-14T10:15:00"),
+        // appointmentDate: new Date("2026-09-14T10:15:00"),
+          appointmentDate: new Date("2026-09-28T10:15:00"),
         userId: "user123",
         serviceId: {
           duration: 45,
@@ -287,7 +291,8 @@ describe("Appointment Service", () => {
       Schedule.findById.mockResolvedValue(schedule);
 
       const existingAppointment = {
-        appointmentDate: new Date("2026-09-14T12:00:00"),
+        // appointmentDate: new Date("2026-09-14T12:00:00"),
+        appointmentDate: new Date("2026-09-28T12:00:00"),
         userId: "other-user",
         serviceId: {
           duration: 30,
