@@ -12,6 +12,7 @@ import PatientDashboard from "./pages/patient/Dashboard"
 import BookAppointment from "./pages/patient/BookAppointment";
 import PatientAppointments from "./pages/patient/Appointments";
 import Profile from "./pages/patient/Profile";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 function App() {
   
   return (
@@ -20,14 +21,21 @@ function App() {
     <Route path="/" element={<Login/>}/>
     <Route path="/login" element={<Login/>}/>
     <Route path="/register" element={<Register/>}/>
-       <Route path="/admin" element={<AdminLayout />}>
+       <Route path="/admin" element={
+         <ProtectedRoute role="admin">
+        <AdminLayout />
+        </ProtectedRoute>
+        }>
            <Route path="dashboard" element={<Dashboard />} />
            <Route path="/admin/appointments" element={<Appointments />}/> 
            <Route path="/admin/services" element={<Services/>}/>
            <Route path="/admin/schedules" element={<Schedules/>}/>
            <Route path="/admin/patients" element={<Patients />} />
         </Route>
-       <Route path="/patient" element={<PatientLayout />}>
+       <Route path="/patient" element={
+          <ProtectedRoute role="patient">
+        <PatientLayout />
+        </ProtectedRoute>}>
            <Route path="dashboard" element={<PatientDashboard />}/>
            <Route path="book" element={<BookAppointment />}/>
            <Route path="appointments" element={<PatientAppointments />}/>
