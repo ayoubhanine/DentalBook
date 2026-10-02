@@ -49,7 +49,8 @@ function Sidebar({ isOpen, onClose }) {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login");
+    // navigate("/login");
+     navigate("/");
   };
 
   return (

@@ -13,12 +13,14 @@ import BookAppointment from "./pages/patient/BookAppointment";
 import PatientAppointments from "./pages/patient/Appointments";
 import Profile from "./pages/patient/Profile";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Home from "./pages/Home";
 function App() {
   
   return (
     <>
    <Routes >
-    <Route path="/" element={<Login/>}/>
+    {/* <Route path="/" element={<Login/>}/> */}
+    <Route path="/" element={<Home/>}/>
     <Route path="/login" element={<Login/>}/>
     <Route path="/register" element={<Register/>}/>
        <Route path="/admin" element={
